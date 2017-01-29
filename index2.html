@@ -1,0 +1,115 @@
+<script src="//code.jquery.com/jquery-2.1.4.min.js"></script>
+<script src="//sdk.amazonaws.com/js/aws-sdk-2.1.34.min.js"></script>
+<script src="Three_r48.js"></script>
+<script src="cannon.js"></script>
+<script src="STLLoader.js"></script>
+
+<input type="file" name="upload" id="upload-file">
+<a href="javascript:void(0)" id="apply-upload">アップロード</a>
+
+<input type="button" name="show" id="show-stl">
+<a href="javascript:void(1)" id="show-stl">STLファイルの表示</a>
+
+<script>
+$(function() {
+  var s3_client = function() {
+    AWS.config.region = "ap-northeast-1";
+    AWS.config.credentials = new AWS.CognitoIdentityCredentials({IdentityPoolId: "ap-northeast-1:ca83a9df-7fe6-4166-b587-62eb02ddc388"});
+    AWS.config.credentials.get(function(err) {
+        if (!err) {
+            console.log("Cognito Identify Id: " + AWS.config.credentials.identityId);
+        }
+    });
+    return new AWS.S3({params: {Bucket: "smart-3d"}});
+  };
+  $("#apply-upload").click(function() {
+    var file = $("#upload-file").prop("files")[0];
+    var timestamp = new Date().getTime();
+    var filename = "file" + timestamp + ".jpg";
+    s3_client().putObject({Key: "row-image/" + filename, ContentType: file.type, Body: file, ACL: "public-read"},
+    function(err, data){
+      // if failed, alert
+      if(data !== null){
+        alert("アップロード成功!");
+      } else {
+        alert("アップロード失敗.");
+      }
+    });
+  });
+  $("#show-stl").click(function(){
+  $.ajax({
+  url: 'https://s3-ap-northeast-1.amazonaws.com/smart-3d/example.stl',
+  type: 'GET',
+  success: function(data) {
+  make_item_list(data);
+
+        // 表示領域の幅、高さ
+        var width  = 320;
+        var height = 480;
+ 
+        // 画角
+        var fov    = 3;
+ 
+        // アスペクト比
+        var aspect = width / height;
+ 
+        // クリッピング手前
+        var near   = 1;
+ 
+        // クリッピング億
+        var far    = 1000;
+ 
+        // カメラ生成
+        var camera = new THREE.PerspectiveCamera( fov, aspect, near, far );
+ 
+        // カメラ位置調整
+        camera.position.z = 500;
+ 
+        // シーン（空間）用意
+        var scene = new THREE.Scene();
+ 
+ 
+        // STLデータをAjaxで取得、コールバック内で表示処理
+        var loader = new THREE.STLLoader();
+        var dataMesh;
+        loader.addEventListener( 'load', function ( event ) {
+            var geometry = event.content;
+            dataMesh =  new THREE.Mesh( geometry );
+            scene.add(dataMesh );
+ 
+        } );
+        loader.load(data);
+ 
+ 
+        // ライト生成
+        var directionalLight = new THREE.DirectionalLight( 0xffffff, 1 );
+        directionalLight.position.z = 3;
+        scene.add( directionalLight );
+ 
+        // レンダラ生成（WebGLレンダラ以外にもcanvas, svg, CSS3レンダラ等がある）
+        var renderer = new THREE.CanvasRenderer();
+        // var renderer = new THREE.WebGLRenderer();
+        renderer.setSize( width, height );
+        document.body.appendChild( renderer.domElement );
+ 
+        $(renderer.domElement).css("backgroundColor","#000");
+ 
+        renderer.render( scene, camera );
+ 
+        // アニメーション
+        // とりあえずぐるーっと回してる
+        function rendering(){
+            if(dataMesh) {
+                dataMesh.rotation.x += 0.02;
+                dataMesh.rotation.y += 0.02;
+            }
+ 
+            renderer.render( scene, camera );
+            setTimeout(rendering, 1000/30);
+        }
+        rendering();
+    });
+
+)
+};
+});
