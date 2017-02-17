@@ -6,10 +6,8 @@ This project launched for make stl file more easily, and more cost-effective wit
 Thanks to
 =========
 jsstl
-https://github.com/tonylukasavage/jsstl
+https://github.com/tonylukasavage/jsstl<br>
 stl_tools
 https://github.com/thearn/stl_tools 
 
-LICENCE
-=======
 
