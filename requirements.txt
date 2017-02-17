@@ -1,0 +1,7 @@
+numpy
+scipy
+Matplotlib
+stl_tools
+boto3
+json
+urllib
