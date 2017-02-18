@@ -5,7 +5,7 @@ This project launched for make stl file more easily, and more cost-effective wit
 
 Notes
 =====
-Templates json included,which uses for AWS CloudFormaiton,<br>
+Template json included,which uses for AWS CloudFormaiton,<br>
 See more infomation https://aws.amazon.com/jp/cloudformation/
 
 
