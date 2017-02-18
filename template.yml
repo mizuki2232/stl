@@ -1,0 +1,141 @@
+
+
+{
+  "Description" : "project01",
+  "Resources" : {
+    "VpcProject01" : {
+      "Type" : "AWS::EC2::VPC",
+      "DeletionPolicy": "Delete",
+      "Properties" : {
+        "CidrBlock" : "10.200.0.0/16",
+        "Tags" : [
+          {"Key":"Name","Value":"vpc-project01"}
+        ]
+      }
+    },
+
+    "SubnetApA" : {
+      "Type" : "AWS::EC2::Subnet",
+      "DeletionPolicy": "Delete",
+      "Properties" : {
+        "VpcId" : {"Ref":"VpcProject01"},
+        "AvailabilityZone": "ap-northeast-1a",
+        "CidrBlock" : "10.200.10.0/24",
+        "MapPublicIpOnLaunch" : "false",
+        "Tags" : [
+          {"Key":"Name","Value":"subnet-ap-a"}
+        ]
+      }
+    },
+
+    "IgwProject01" : {
+      "Type" : "AWS::EC2::InternetGateway",
+      "DeletionPolicy": "Delete",
+      "Properties" : {
+        "Tags" : [
+          {"Key":"Name","Value":"igw-project01"}
+        ]
+      }
+    },
+    "IgwProject01Attach" : {
+      "Type" : "AWS::EC2::VPCGatewayAttachment",
+      "DeletionPolicy": "Delete",
+      "Properties" : {
+        "VpcId" : {"Ref":"VpcProject01"} ,
+        "InternetGatewayId" : { "Ref" : "IgwProject01" }
+      }
+    },
+
+
+
+
+    "RtbPublic" : {
+      "Type" : "AWS::EC2::RouteTable",
+      "DeletionPolicy": "Delete",
+      "Properties" : {
+        "VpcId" : {"Ref":"VpcProject01"} ,
+        "Tags" : [
+          {"Key":"Name","Value":"rtb-public"}
+        ]
+      }
+    },
+    "RtbPublicRoute0" : {
+      "Type" : "AWS::EC2::Route",
+      "DependsOn" : "IgwProject01Attach",
+      "DeletionPolicy": "Delete",
+      "Properties" : {
+        "RouteTableId" : {"Ref" : "RtbPublic"},
+        "DestinationCidrBlock" : "0.0.0.0/0",
+        "GatewayId" : {"Ref":"IgwProject01"}
+      }
+    },
+    "SubnetRouteTableAssociationSubnetApA" : {
+      "Type" : "AWS::EC2::SubnetRouteTableAssociation",
+      "DeletionPolicy": "Delete",
+      "Properties" : {
+        "SubnetId" : {"Ref":"SubnetApA"} ,
+        "RouteTableId" : { "Ref" : "RtbPublic" }
+      }
+    },
+
+    "SgAp" : {
+      "Type" : "AWS::EC2::SecurityGroup",
+      "DeletionPolicy": "Delete",
+      "Properties" : {
+        "VpcId" : {"Ref":"VpcProject01"},
+        "GroupDescription" : "for subnet-ap-a, subnet-ap-c",
+        "Tags" : [
+          {"Key":"Name","Value":"sg-ap"}
+        ]
+      }
+    },
+
+    "SgApIngress0": {
+      "Type": "AWS::EC2::SecurityGroupIngress",
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "IpProtocol" : "tcp",
+        "FromPort" : "22",
+        "ToPort" : "22",
+        "CidrIp": "0.0.0.0/0",
+        "GroupId": {"Ref" : "SgAp"}
+      }
+    },
+
+    "SgApEgress0": {
+      "Type": "AWS::EC2::SecurityGroupEgress",
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "IpProtocol" : "-1",
+        "FromPort" : "0",
+        "ToPort" : "65535",
+        "CidrIp": "0.0.0.0/0",
+        "GroupId": {"Ref" : "SgAp"}
+      }
+    },
+    "S3B4GHEO": {
+      "Type": "AWS::S3::Bucket",
+      "Properties": {
+                 "AccessControl" : "PublicReadWrite",
+                 "BucketName" : "aaaaiiiiii"
+
+       },
+      "Metadata": {
+        "AWS::CloudFormation::Designer": {
+          "id": "88c7138c-b96c-4f8f-a16f-60e5908340a6"
+        }
+      }
+    },
+   "SQSQ25QRV": {
+      "Type": "AWS::SQS::Queue",
+      "Properties": {},
+      "Metadata": {
+        "AWS::CloudFormation::Designer": {
+          "id": "0b5b97e9-7f4f-443c-9c81-6be0507a5494"
+        }
+      }
+    }
+
+}
+}
+
