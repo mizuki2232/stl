@@ -11,7 +11,7 @@
 <input type="file" name="upload" id="upload-file">
 <a href="javascript:void(0)" id="apply-upload">upload</a>
 <br>
-<a href="https://s3-ap-northeast-1.amazonaws.com/smart-3d/examples.stl">
+<a href="https://s3-ap-northeast-1.amazonaws.com/your-bucketname/examples.stl">
    <button>download</button>
 </a>
 <br>
@@ -23,13 +23,13 @@
 $(function() {
   var s3_client = function() {
     AWS.config.region = "ap-northeast-1";
-    AWS.config.credentials = new AWS.CognitoIdentityCredentials({IdentityPoolId: "ap-northeast-1:ca83a9df-7fe6-4166-b587-62eb02ddc388"});
+    AWS.config.credentials = new AWS.CognitoIdentityCredentials({IdentityPoolId: "ap-northeast-1:yourPoolid"});
     AWS.config.credentials.get(function(err) {
         if (!err) {
             console.log("Cognito Identify Id: " + AWS.config.credentials.identityId);
         }
     });
-    return new AWS.S3({params: {Bucket: "smart-3d"}});
+    return new AWS.S3({params: {Bucket: "your-bucketname"}});
   };
   $("#apply-upload").click(function() {
     var file = $("#upload-file").prop("files")[0];
